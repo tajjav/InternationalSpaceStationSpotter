@@ -1,20 +1,61 @@
-const { fetchMyIP, fetchCoordsByIP } = require('./iss');
+const { /*fetchMyIP, fetchCoordsByIP, fetchISSFlyOverTimes,*/ nextISSTimesForMyLocation } = require('./iss');
+/** 
+ * Input: 
+ *   Array of data objects defining the next fly-overs of the ISS.
+ *   [ { risetime: <number>, duration: <number> }, ... ]
+ * Returns: 
+ *   undefined
+ * Sideffect: 
+ *   Console log messages to make that data more human readable.
+ *   Example output:
+ *   Next pass at Mon Jun 10 2019 20:11:44 GMT-0700 (Pacific Daylight Time) for 468 seconds!
+ */
+const printPassTimes = function(passTimes) {
+ for (const pass of passTimes) {
+  const datetime = new Date(0);
+  datetime.setUTCSeconds(pass.risetime);
+  const duration = pass.duration;
+  console.log(`Next pass at ${datetime} for ${duration} seconds!`);
+ }
+};
 
-let myIP = fetchMyIP((error, ip) => {
+
+nextISSTimesForMyLocation((error, passTimes) => {
   if (error) {
-    console.log("It didn't work!" , error);
-    return;
+    return console.log("It didn't work!", error);
   }
-
-  console.log('It worked! Returned IP:' , ip);
-  return ip;
+  // success, print out the deets!
+  printPassTimes(passTimes);
 });
 
 
-// fetchCoordsByIP('68.145.56.148', (error, coordinates) => {
+// fetchMyIP((error, ip) => {
 //   if (error) {
-//     console.log("Coord fetch error! ", error);
+//     console.error("It didn't work!", error);
+//     return;
+//   }
+
+//   console.log('It worked! Returned IP:', ip);
+// });
+
+
+// let exampleIP = '68.145.56.148';
+// fetchCoordsByIP(exampleIP, (error, coordinates) => {
+//   if (error) {
+//     console.error("Coord fetch error! ", error);
 //     return;
 //   }
 //   console.log("Coord fetched successfully! ", coordinates);
 // });
+
+
+// let exampleCoord = {lat: 51.105690, long: -113.926012 };
+// fetchISSFlyOverTimes(exampleCoord, (error, flyOverDetails) => {
+//   if (error) {
+//     console.error("ISSFlyOverFetch error: ", error);
+//     return;
+//   }
+
+//   console.log("ISSFlyOverDetails: ", flyOverDetails);
+
+// })
