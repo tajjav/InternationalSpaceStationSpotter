@@ -1,5 +1,19 @@
 const request = require("request-promise-native");
 
+/* 
+ * Input: None
+ * Returns: Promise for fly over data for users location
+ */
+const nextISSTimesForMyLocation = function() {
+  return fetchMyIP()
+          .then(fetchCoordsByIP)
+          .then(fetchISSFlyOverTimes)
+          .then((body) => {
+            const {response} = JSON.parse(body);
+            return response;
+          });
+}
+
 /*
  * Requests user's ip address from https://www.ipify.org/
  * Input: None
@@ -20,4 +34,34 @@ const fetchCoordsByIP = function(body) {
   return request(`http://ipwho.is/${ip}`)
 };
 
-module.exports = { fetchMyIP, fetchCoordsByIP };
+
+/**
+ * fetchISSFlyOverTimes function definition using promise
+ * @param {JSON} body 
+ * @returns Promise of request for array of objects with fly over times
+ */
+const fetchISSFlyOverTimes = function(body) {
+  const { latitude, longitude } = JSON.parse(body);
+  return request(`https://iss-flyover.herokuapp.com/json/?lat=${latitude}&lon=${longitude}`);
+};
+
+/** 
+ * Input: 
+ *   Array of data objects defining the next fly-overs of the ISS.
+ *   [ { risetime: <number>, duration: <number> }, ... ]
+ * Returns: 
+ *   undefined
+ * Sideffect: 
+ *   Console log messages to make that data more human readable.
+ *   Example output:
+ *   Next pass at Mon Jun 10 2019 20:11:44 GMT-0700 (Pacific Daylight Time) for 468 seconds!
+ */
+const printPassTimes = function(passTimes) {
+  for (const pass of passTimes) {
+   const datetime = new Date(0);
+   datetime.setUTCSeconds(pass.risetime);
+   const duration = pass.duration;
+   console.log(`Next pass at ${datetime} for ${duration} seconds!`);
+  }
+ };
+module.exports = { nextISSTimesForMyLocation, printPassTimes };

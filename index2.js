@@ -1,9 +1,11 @@
-const {fetchMyIP, fetchCoordsByIP} = require("./iss_promised");
+const {nextISSTimesForMyLocation, printPassTimes} = require("./iss_promised");
 
-fetchMyIP()
-  .then(fetchCoordsByIP)
-  .then((body) => {
-    console.log(body);
+nextISSTimesForMyLocation()
+  .then((passTimes) => {
+    printPassTimes(passTimes);
   })
+  .catch((error) => {
+    console.error("It didn't work: ", error.message);
+  });
   
 
